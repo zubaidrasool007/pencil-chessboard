@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
 import { NgxChessBoardView } from 'ngx-chess-board';
 import { fromEvent } from "rxjs"
 
@@ -9,23 +9,28 @@ import { fromEvent } from "rxjs"
 })
 export class BoardComponent implements OnInit, AfterViewInit {
   @ViewChild('board', { static: false }) board!: NgxChessBoardView;
+  @ViewChild('container', { static: false }) container!: ElementRef;
+
+  communicator = new BroadcastChannel('communicator');
 
   constructor() { }
 
   ngOnInit(): void {
-    fromEvent(window, 'message').subscribe((event: any) => {
-      console.log("FEN", event.data)
-      this.board.setFEN(event.data)
-    })
+
+    // fromEvent(window, 'message').subscribe((event: any) => {
+    //   console.log("FEN", event)
+    //   // this.board.setFEN(event.data)
+    //   // this.board.move(event.data)
+    // })
+
   }
 
   ngAfterViewInit(): void {
-    const FEN = this.board.getFEN();
-    console.log({ FEN })
   }
 
-  onMoveChange({fen}: any) {
-    window.postMessage(fen, `${window.location.href}iframe`)
-    console.log({ fen })
+  onMoveChange(event: any) {
+    this.communicator.postMessage(event.fen)
+    // window.postMessage(event.fen, `${window.location.href}iframe`)
+    // console.log({ fen: event, url: window.location.href })
   }
 }
